@@ -32,19 +32,22 @@ export function App() {
 
   return (
     <div className="grid-container">
-      <div className="grid-row">
-        <div className="grid-col">
-          <h1>Editor</h1>
-          <Editor blocks={blocks} onChange={handleChange} />
-          <hr />
-          <h2>Serialized blocks</h2>
-          <textarea
-            readOnly
-            value={serializedBlocks}
-            className="width-full height-card"
-          />
-        </div>
+      <h1>Gutenberg Editor</h1>
+      <p>
+        This is an experiment with using Wordpress's Gutenberg editor outside
+        Wordpress itself, incorporating elements from the U.S. Web Design
+        System.
+      </p>
+      <div className="padding-y-4">
+        <Editor blocks={blocks} onChange={handleChange} />
       </div>
+      <hr />
+      <h2>Serialized blocks</h2>
+      <textarea
+        readOnly
+        value={serializedBlocks}
+        className="width-full height-card"
+      />
     </div>
   );
 }

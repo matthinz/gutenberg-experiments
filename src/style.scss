@@ -5,8 +5,10 @@
   $theme-show-compile-warnings: false,
   $theme-show-notifications: false,
   $output-these-utilities: (
-    height,
-    width,
+    "height",
+    "margin-vertical",
+    "padding",
+    "width",
   )
 );
 

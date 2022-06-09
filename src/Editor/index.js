@@ -4,6 +4,7 @@ import {
   BlockEditorProvider,
   BlockList,
   BlockTools,
+  Inserter,
   WritingFlow,
   ObserveTyping,
 } from "@wordpress/block-editor";
