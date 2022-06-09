@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const autoprefixer = require("autoprefixer");
 const path = require("path");
 const sass = require("sass");
 const webpack = require("webpack");
@@ -30,6 +31,14 @@ module.exports = {
           { loader: "style-loader" },
           { loader: "css-loader" },
           {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [autoprefixer],
+              },
+            },
+          },
+          {
             loader: "sass-loader",
             options: {
               sassOptions: {
@@ -42,7 +51,22 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [{ loader: "style-loader" }, { loader: "css-loader" }],
+        use: [
+          { loader: "style-loader" },
+          { loader: "css-loader" },
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [autoprefixer],
+              },
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(svg|gif|jpg|png)$/,
+        type: "asset/resource",
       },
     ],
   },
