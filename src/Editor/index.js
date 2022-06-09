@@ -1,15 +1,14 @@
 import React from "react";
-import { registerBlockType } from "@wordpress/blocks";
+import { setDefaultBlockName, registerBlockType } from "@wordpress/blocks";
 import {
   BlockEditorProvider,
   BlockList,
   BlockTools,
-  Inserter,
   WritingFlow,
   ObserveTyping,
+  __experimentalLibrary as Library,
 } from "@wordpress/block-editor";
 import { SlotFillProvider, Popover } from "@wordpress/components";
-import { useState } from "@wordpress/element";
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts";
 
 // @wordpress/format-library registers all the core rich text formatting actions (bold, italic, etc.)
@@ -22,6 +21,8 @@ BLOCK_TYPES.forEach(({ metadata, settings, name }) => {
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/index.js#L127
   registerBlockType({ name, ...metadata }, settings);
 });
+
+setDefaultBlockName("core/paragraph");
 
 // Make sure to load the block editor stylesheets too
 import "@wordpress/components/build-style/style.css";
@@ -39,13 +40,20 @@ export function Editor({ blocks, onChange }) {
     >
       <ShortcutProvider>
         <SlotFillProvider>
-          <BlockTools>
-            <WritingFlow>
-              <ObserveTyping>
-                <BlockList />
-              </ObserveTyping>
-            </WritingFlow>
-          </BlockTools>
+          <div className="grid-row grid-gap">
+            <div className="grid-col-4">
+              <Library />
+            </div>
+            <div className="grid-col-8 padding-y-4">
+              <BlockTools>
+                <WritingFlow>
+                  <ObserveTyping>
+                    <BlockList />
+                  </ObserveTyping>
+                </WritingFlow>
+              </BlockTools>
+            </div>
+          </div>
           <Popover.Slot />
         </SlotFillProvider>
       </ShortcutProvider>

@@ -13,3 +13,15 @@
 );
 
 @forward "uswds";
+
+// CSS tweaks
+
+[type="search"] {
+  float: none;
+}
+
+@media screen and (min-width: 782px) {
+  .block-editor-inserter__main-area {
+    width: auto;
+  }
+}

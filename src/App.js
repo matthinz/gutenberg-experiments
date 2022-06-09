@@ -38,11 +38,13 @@ export function App() {
         Wordpress itself, incorporating elements from the U.S. Web Design
         System.
       </p>
-      <div className="padding-y-4">
-        <Editor blocks={blocks} onChange={handleChange} />
-      </div>
+      <Editor blocks={blocks} onChange={handleChange} />
       <hr />
       <h2>Serialized blocks</h2>
+      <p>
+        This is the serialized output from the block editor. It is valid HTML
+        and can be stored as a string.
+      </p>
       <textarea
         readOnly
         value={serializedBlocks}
