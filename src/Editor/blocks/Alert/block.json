@@ -2,6 +2,5 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 2,
   "name": "uswds/alert",
-  "title": "Alert",
-  "category": "widgets"
+  "title": "Alert"
 }

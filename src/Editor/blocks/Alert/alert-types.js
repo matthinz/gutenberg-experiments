@@ -8,6 +8,7 @@ export const DEFAULT_ALERT_TYPE = "info";
 export const ALERT_TYPES = {
   error: {
     className: "bg-error-lighter",
+
     icon: errorIcon,
     label: "Error",
   },
