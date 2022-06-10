@@ -7,6 +7,8 @@ import * as paragraph from "@wordpress/block-library/build-module/paragraph";
 import * as quote from "@wordpress/block-library/build-module/quote";
 
 import * as alert from "./blocks/Alert";
+import * as processList from "./blocks/ProcessList";
+import * as processListItem from "./blocks/ProcessListItem";
 
 export const BLOCK_TYPES = [
   alert,
@@ -16,5 +18,7 @@ export const BLOCK_TYPES = [
   list,
   listItem,
   paragraph,
+  processList,
+  processListItem,
   quote,
 ];

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "uswds/process-list-item",
+  "title": "Process List Item",
+  "parent": ["uswds/process-list"],
+  "category": "text"
+}
