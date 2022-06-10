@@ -1,10 +1,9 @@
 import { AlertEdit } from "./edit";
 import { saveAlert } from "./save";
 
-export const metadata = {
-  name: "uswds/alert",
-  title: "Alert",
-};
+import _metadata from "./block.json";
+
+export const metadata = _metadata;
 
 export const { name } = metadata;
 

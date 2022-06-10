@@ -1,16 +1,22 @@
 import React from "react";
-import {
-  AlignmentControl,
-  BlockControls,
-  RichText,
-  useBlockProps,
-} from "@wordpress/block-editor";
+import { BlockControls, RichText } from "@wordpress/block-editor";
 
-export function AlertEdit({ setAttributes }) {
+import { AlertTypeDropdown } from "./alert-type-dropdown";
+import { DEFAULT_ALERT_TYPE } from "./alert-types";
+
+export function AlertEdit({
+  attributes: { type = DEFAULT_ALERT_TYPE },
+  setAttributes,
+}) {
   return (
     <>
-      <BlockControls group="block"></BlockControls>
-      <div className="usa-alert usa-alert--info">
+      <BlockControls group="block">
+        <AlertTypeDropdown
+          selectedType={type}
+          onChange={(newType) => setAttributes({ type: newType })}
+        />
+      </BlockControls>
+      <div className={`usa-alert usa-alert--${type}`}>
         <div className="usa-alert__body">
           <RichText
             tagName="h4"
