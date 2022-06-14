@@ -1,8 +1,8 @@
 ## Things to figure out
 
 - Alert component
-    - Switch alert type
-    - Switch alert title heading level
+    - ~~Switch alert type~~
+    - ~~Switch alert title heading level~~
     - Transform to paragraph
     - Transform from paragraph
     - transform from heading
