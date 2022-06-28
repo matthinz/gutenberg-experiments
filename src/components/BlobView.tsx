@@ -4,6 +4,7 @@ import { GithubApiContext } from "./GithubApi";
 import { BlockEditor } from "./editors/BlockEditor";
 import { TextEditor } from "./editors/TextEditor";
 import { FrontMatterEditor } from "./editors/FrontMatterEditor";
+import { decode as decodeBase64 } from "js-base64";
 
 export type BlobViewProps = {
   branch: string;
@@ -70,7 +71,7 @@ export function BlobView({ branch, metadata: { path, sha } }: BlobViewProps) {
         }
 
         setContent(
-          blob.encoding === "base64" ? atob(blob.content) : blob.content
+          blob.encoding === "base64" ? decodeBase64(blob.content) : blob.content
         );
       }
     })();
