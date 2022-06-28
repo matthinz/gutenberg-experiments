@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  createBlock,
   setDefaultBlockName,
   registerBlockType,
   parse,
@@ -24,7 +25,7 @@ import { BLOCK_TYPES } from "./block-types";
 BLOCK_TYPES.forEach(({ metadata, settings, name }) => {
   // Format for invoking registerBlockType cribbed from
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/index.js#L127
-  registerBlockType({ name, ...metadata }, settings);
+  registerBlockType({ ...metadata, name }, settings);
 });
 
 setDefaultBlockName("core/paragraph");
@@ -52,7 +53,13 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
   }, []);
 
   useEffect(() => {
-    const parsedBlocks = parse(value);
+    let parsedBlocks = parse(value);
+
+    // If we don't have any blocks, put the HTML content into a single custom HTML block
+    if (parsedBlocks.length === 0 && value !== "") {
+      parsedBlocks = [createBlock("core/html", { content: value })];
+    }
+
     setBlocks(parsedBlocks);
   }, [value]);
 
