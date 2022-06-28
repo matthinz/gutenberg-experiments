@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   createBlock,
   setDefaultBlockName,
@@ -36,8 +36,8 @@ import "@wordpress/block-editor/build-style/style.css";
 import "@wordpress/block-library/build-style/style.css";
 import "@wordpress/block-library/build-style/editor.css";
 import "@wordpress/block-library/build-style/theme.css";
-import { useEffect } from "react";
-import { useCallback } from "react";
+
+import "./block-editor.scss";
 
 type BlockEditorProps = {
   value: string;
