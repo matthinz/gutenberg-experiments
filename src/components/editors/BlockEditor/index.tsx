@@ -1,5 +1,11 @@
-import React from "react";
-import { setDefaultBlockName, registerBlockType } from "@wordpress/blocks";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  createBlock,
+  setDefaultBlockName,
+  registerBlockType,
+  parse,
+  serialize,
+} from "@wordpress/blocks";
 import {
   BlockEditorProvider,
   BlockList,
@@ -19,7 +25,7 @@ import { BLOCK_TYPES } from "./block-types";
 BLOCK_TYPES.forEach(({ metadata, settings, name }) => {
   // Format for invoking registerBlockType cribbed from
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/index.js#L127
-  registerBlockType({ name, ...metadata }, settings);
+  registerBlockType({ ...metadata, name }, settings);
 });
 
 setDefaultBlockName("core/paragraph");
@@ -31,12 +37,41 @@ import "@wordpress/block-library/build-style/style.css";
 import "@wordpress/block-library/build-style/editor.css";
 import "@wordpress/block-library/build-style/theme.css";
 
-export function Editor({ blocks, onChange }) {
+import "./block-editor.scss";
+
+type BlockEditorProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+export function BlockEditor({ value, onChange }: BlockEditorProps) {
+  const [blocks, setBlocks] = useState<any[] | undefined>(undefined);
+
+  const handleChange = useCallback((newBlocks) => {
+    setBlocks(newBlocks);
+    onChange(serialize(newBlocks));
+  }, []);
+
+  useEffect(() => {
+    let parsedBlocks = parse(value);
+
+    // If we don't have any blocks, put the HTML content into a single custom HTML block
+    if (parsedBlocks.length === 0 && value !== "") {
+      parsedBlocks = [createBlock("core/html", { content: value })];
+    }
+
+    setBlocks(parsedBlocks);
+  }, [value]);
+
+  if (!blocks) {
+    return null;
+  }
+
   return (
     <BlockEditorProvider
       value={blocks}
-      onInput={(blocks) => onChange(blocks)}
-      onChange={(blocks) => onChange(blocks)}
+      onInput={handleChange}
+      onChange={handleChange}
     >
       <ShortcutProvider>
         <SlotFillProvider>

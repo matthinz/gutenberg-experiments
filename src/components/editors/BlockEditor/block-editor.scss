@@ -1,0 +1,13 @@
+[type="search"] {
+  float: none;
+}
+
+@media screen and (min-width: 782px) {
+  .block-editor-inserter__main-area {
+    width: auto;
+  }
+}
+
+.block-editor-block-list__block.usa-process-list__item {
+  position: unset;
+}

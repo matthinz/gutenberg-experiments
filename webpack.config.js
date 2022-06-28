@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const autoprefixer = require("autoprefixer");
 const path = require("path");
@@ -14,13 +16,29 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.[jt]sx?$/,
         exclude: /node_modules/,
         use: [
           {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env", "@babel/preset-react"],
+              presets: [
+                "@babel/preset-env",
+                "@babel/preset-react",
+                ["@babel/preset-typescript", {}],
+              ],
+              plugins: [
+                [
+                  "transform-inline-environment-variables",
+                  {
+                    include: [
+                      "NODE_ENV",
+                      "GITHUB_CLIENT_ID",
+                      "GITHUB_REDIRECT_URI",
+                    ],
+                  },
+                ],
+              ],
             },
           },
         ],
@@ -71,10 +89,25 @@ module.exports = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      publicPath: "/",
+    }),
     new webpack.EnvironmentPlugin({ IS_GUTENBERG_PLUGIN: false }),
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"],
+    }),
   ],
+  resolve: {
+    extensions: [".js", ".ts", ".jsx", ".tsx"],
+    fallback: {
+      buffer: require.resolve("buffer/"),
+    },
+  },
   devServer: {
+    historyApiFallback: {
+      disableDotRule: true,
+    },
     static: "./dist",
+    port: process.env.PORT ?? 8080,
   },
 };

@@ -1,6 +1,7 @@
 import * as column from "@wordpress/block-library/build-module/column";
 import * as columns from "@wordpress/block-library/build-module/columns";
 import * as heading from "@wordpress/block-library/build-module/heading";
+import * as html from "@wordpress/block-library/build-module/html";
 import * as image from "@wordpress/block-library/build-module/image";
 import * as list from "@wordpress/block-library/build-module/list";
 import * as listItem from "@wordpress/block-library/build-module/list-item";
@@ -17,6 +18,7 @@ export const BLOCK_TYPES = [
   column,
   columns,
   heading,
+  html,
   image,
   list,
   listItem,

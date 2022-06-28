@@ -9,6 +9,8 @@
     - Enter in heading does what?
     - Enter in text does what?
         - Use innerBlocks for text content?
+- Process list component
+    
 - Block chooser / persistent "+" button
 - Extend / modify columns component?
 - Markdown? Can serialize as Markdown?

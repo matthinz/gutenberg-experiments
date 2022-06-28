@@ -1,0 +1,157 @@
+import { Octokit } from "@octokit/rest";
+
+import {
+  Blob,
+  Client,
+  Commit,
+  CreateClientOptions,
+  CreateCommitOptions,
+  CreateTreeOptions,
+  GetBlobOptions,
+  GetShaForBranchOptions,
+  GetTreeOptions,
+  Tree,
+  TreeItem,
+  UpdateBranchOptions,
+} from "./types";
+
+export * from "./types";
+
+export function createClient({
+  accessToken,
+  owner,
+  repo,
+}: CreateClientOptions): Client {
+  const o = new Octokit({
+    auth: accessToken,
+  });
+
+  async function createCommit({
+    message,
+    parent,
+    tree,
+  }: CreateCommitOptions): Promise<string> {
+    const commit = await o.git.createCommit({
+      parents: [parent],
+      owner,
+      message,
+      repo,
+      tree,
+    });
+    return commit.data.sha;
+  }
+
+  async function createTree({
+    parent,
+    items,
+  }: CreateTreeOptions): Promise<string> {
+    const tree = await o.git.createTree({
+      owner,
+      repo,
+      base_tree: parent,
+      tree: items.map(({ path, content }) => ({
+        mode: "100644",
+        type: "blob",
+        path,
+        content,
+      })),
+    });
+    return tree.data.sha;
+  }
+
+  async function getBlob({ sha }: GetBlobOptions): Promise<Blob> {
+    const resp = await o.git.getBlob({
+      owner,
+      repo,
+      file_sha: sha,
+    });
+
+    const { content, encoding } = resp.data;
+
+    if (encoding !== "utf8" && encoding !== "base64") {
+      throw new Error(`Invalid encoding: ${encoding}`);
+    }
+
+    return { content, encoding, sha };
+  }
+
+  async function getCommitForBranch(branch: string): Promise<Commit> {
+    const ref = `heads/${branch}`;
+
+    const resp = await o.git.getRef({
+      owner,
+      repo,
+      ref,
+    });
+
+    const { type, sha } = resp.data.object;
+
+    if (type !== "commit") {
+      throw new Error(`ref '${ref}' is not a commit`);
+    }
+
+    const commit = await o.git.getCommit({
+      owner,
+      repo,
+      commit_sha: sha,
+    });
+
+    return {
+      sha: commit.data.sha,
+      tree: commit.data.tree.sha,
+      message: commit.data.message,
+    };
+  }
+
+  async function getTree({ sha }: GetTreeOptions): Promise<Tree> {
+    const resp = await o.git.getTree({
+      owner,
+      repo,
+      tree_sha: sha,
+    });
+
+    const { tree, truncated } = resp.data;
+
+    if (truncated) {
+      throw new Error("Not supported: truncated trees");
+    }
+
+    return {
+      sha,
+      items: tree as TreeItem[],
+    };
+  }
+
+  async function getShaForBranch({
+    branch,
+  }: GetShaForBranchOptions): Promise<string> {
+    const ref = await o.git.getRef({
+      owner,
+      repo,
+      ref: `heads/${branch}`,
+    });
+    return ref.data.object.sha;
+  }
+
+  async function updateBranch({
+    branch,
+    sha,
+  }: UpdateBranchOptions): Promise<void> {
+    o.git.updateRef({
+      owner,
+      ref: `heads/${branch}`,
+      repo,
+      sha,
+    });
+  }
+
+  return {
+    createCommit,
+    createTree,
+    getBlob,
+    getCommitForBranch,
+    getShaForBranch,
+    getTree,
+    updateBranch,
+  };
+}
