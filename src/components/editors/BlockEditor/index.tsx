@@ -47,10 +47,7 @@ type BlockEditorProps = {
 export function BlockEditor({ value, onChange }: BlockEditorProps) {
   const [blocks, setBlocks] = useState<any[] | undefined>(undefined);
 
-  const handleChange = useCallback((newBlocks) => {
-    setBlocks(newBlocks);
-    onChange(serialize(newBlocks));
-  }, []);
+  const handleChange = useCallback((newBlocks) => {}, []);
 
   useEffect(() => {
     let parsedBlocks = parse(value);
@@ -76,7 +73,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       <ShortcutProvider>
         <SlotFillProvider>
           <div className="grid-row grid-gap">
-            <div className="grid-col-4">
+            <div className="grid-col-4 bg-base-lighter">
               <Library />
             </div>
             <div className="grid-col-8 padding-y-4">

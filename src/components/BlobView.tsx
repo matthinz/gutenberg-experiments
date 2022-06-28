@@ -5,53 +5,13 @@ import { BlockEditor } from "./editors/BlockEditor";
 import { TextEditor } from "./editors/TextEditor";
 import { FrontMatterEditor } from "./editors/FrontMatterEditor";
 import { decode as decodeBase64 } from "js-base64";
+import { commitChanges } from "../git";
 
 export type BlobViewProps = {
   branch: string;
   fullPath: string;
   metadata: BlobMetadata;
 };
-
-type CommitChangesOptions = {
-  branch: string;
-  path: string;
-  content: string;
-  client: Client;
-};
-
-async function commitChanges({
-  branch,
-  path,
-  content,
-  client,
-}: CommitChangesOptions): Promise<void> {
-  // 1. Get the commit that the branch currently points to
-  const parentCommit = await client.getCommitForBranch(branch);
-
-  // 2. Create a new tree based on that
-  const treeSha = await client.createTree({
-    parent: parentCommit.tree,
-    items: [
-      {
-        path,
-        content,
-      },
-    ],
-  });
-
-  // 4. Create a commit pointing to the new tree
-  const commit = await client.createCommit({
-    parent: parentCommit.sha,
-    tree: treeSha,
-    message: "Test commit",
-  });
-
-  // 5. Update the branch ref to point at the commit
-  await client.updateBranch({
-    branch,
-    sha: commit,
-  });
-}
 
 export function BlobView({
   branch,
@@ -106,6 +66,7 @@ export function BlobView({
   );
 
   const handleChange = useCallback((newValue) => {
+    console.log(newValue);
     setContent(newValue);
   }, []);
 
@@ -131,9 +92,11 @@ export function BlobView({
             onChange={handleChange}
             editor={editor}
           />
-          <button type="submit" className="usa-button" disabled={submitting}>
-            Save
-          </button>
+          <div className="padding-2 margin-y-1 display-flex flex-row flex-align-end">
+            <button type="submit" className="usa-button" disabled={submitting}>
+              Save
+            </button>
+          </div>
         </form>
       )}
     </div>
