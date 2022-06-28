@@ -20,7 +20,6 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "buffer": "^6.0.3",
     "css-loader": "^6.7.1",
-    "dotenv": "^16.0.1",
     "html-webpack-plugin": "^5.5.0",
     "postcss-loader": "^7.0.0",
     "prettier": "2.6.2",

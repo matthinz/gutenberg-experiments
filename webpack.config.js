@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const autoprefixer = require("autoprefixer");
 const path = require("path");
