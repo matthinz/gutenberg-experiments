@@ -95,9 +95,11 @@ async function getBlobOrTree(
   });
 
   for (let i = 0; i < path.length; i++) {
-    const fullPath = path.slice(0, i + 1).join("/");
-    const item = tree.items.find((item) => item.path == fullPath);
+    const item = tree.items.find((item) => {
+      return item.path == path[i];
+    });
     if (!item) {
+      const fullPath = path.slice(0, i + 1).join("/");
       throw new Error(`item not found in tree: ${fullPath}`);
     }
     if (item.type === "tree") {

@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useParams } from "@reach/router";
 import { BlobMetadata, Client } from "../github";
 import { GithubApiContext } from "./GithubApi";
+import { BlockEditor } from "./editors/BlockEditor";
+import { TextEditor } from "./editors/TextEditor";
+import { FrontMatterEditor } from "./editors/FrontMatterEditor";
 
 export type BlobViewProps = {
   branch: string;
@@ -101,16 +103,27 @@ export function BlobView({ branch, metadata: { path, sha } }: BlobViewProps) {
     setContent(evt.target.value);
   }, []);
 
+  let editor: React.ComponentType<{
+    value: string;
+    onChange: (value: string) => void;
+  }>;
+
+  if (/\.html$/.test(path)) {
+    editor = BlockEditor;
+  } else {
+    editor = TextEditor;
+  }
+
   return (
     <div className="grid-container">
       <h1>{path}</h1>
       {content == null && "Loading..."}
       {content != null && (
         <form onSubmit={handleSubmit}>
-          <textarea
-            className="width-full height-card"
+          <FrontMatterEditor
             value={content}
             onChange={handleChange}
+            editor={editor}
           />
           <button type="submit" className="usa-button" disabled={submitting}>
             Save

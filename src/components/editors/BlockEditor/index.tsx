@@ -1,5 +1,10 @@
-import React from "react";
-import { setDefaultBlockName, registerBlockType } from "@wordpress/blocks";
+import React, { useState } from "react";
+import {
+  setDefaultBlockName,
+  registerBlockType,
+  parse,
+  serialize,
+} from "@wordpress/blocks";
 import {
   BlockEditorProvider,
   BlockList,
@@ -30,13 +35,36 @@ import "@wordpress/block-editor/build-style/style.css";
 import "@wordpress/block-library/build-style/style.css";
 import "@wordpress/block-library/build-style/editor.css";
 import "@wordpress/block-library/build-style/theme.css";
+import { useEffect } from "react";
+import { useCallback } from "react";
 
-export function Editor({ blocks, onChange }) {
+type BlockEditorProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+export function BlockEditor({ value, onChange }: BlockEditorProps) {
+  const [blocks, setBlocks] = useState<any[] | undefined>(undefined);
+
+  const handleChange = useCallback((newBlocks) => {
+    setBlocks(newBlocks);
+    onChange(serialize(newBlocks));
+  }, []);
+
+  useEffect(() => {
+    const parsedBlocks = parse(value);
+    setBlocks(parsedBlocks);
+  }, [value]);
+
+  if (!blocks) {
+    return null;
+  }
+
   return (
     <BlockEditorProvider
       value={blocks}
-      onInput={(blocks) => onChange(blocks)}
-      onChange={(blocks) => onChange(blocks)}
+      onInput={handleChange}
+      onChange={handleChange}
     >
       <ShortcutProvider>
         <SlotFillProvider>

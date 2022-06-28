@@ -93,9 +93,15 @@ module.exports = {
       publicPath: "/",
     }),
     new webpack.EnvironmentPlugin({ IS_GUTENBERG_PLUGIN: false }),
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"],
+    }),
   ],
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx"],
+    fallback: {
+      buffer: require.resolve("buffer/"),
+    },
   },
   devServer: {
     historyApiFallback: {
