@@ -8,6 +8,7 @@ import { decode as decodeBase64 } from "js-base64";
 
 export type BlobViewProps = {
   branch: string;
+  fullPath: string;
   metadata: BlobMetadata;
 };
 
@@ -52,7 +53,11 @@ async function commitChanges({
   });
 }
 
-export function BlobView({ branch, metadata: { path, sha } }: BlobViewProps) {
+export function BlobView({
+  branch,
+  fullPath,
+  metadata: { path, sha },
+}: BlobViewProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [content, setContent] = useState<string | undefined>();
   const client = useContext(GithubApiContext);
@@ -91,7 +96,7 @@ export function BlobView({ branch, metadata: { path, sha } }: BlobViewProps) {
         }
         await commitChanges({
           branch,
-          path,
+          path: fullPath,
           content,
           client,
         });
@@ -100,8 +105,8 @@ export function BlobView({ branch, metadata: { path, sha } }: BlobViewProps) {
     [branch, path, content, client]
   );
 
-  const handleChange = useCallback((evt) => {
-    setContent(evt.target.value);
+  const handleChange = useCallback((newValue) => {
+    setContent(newValue);
   }, []);
 
   let editor: React.ComponentType<{

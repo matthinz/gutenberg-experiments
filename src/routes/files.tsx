@@ -73,7 +73,13 @@ export function FilesRoute({ branch, owner, repo, ...rest }: FilesRouteProps) {
     <GithubApiContext.Provider value={client}>
       <Page branch={branch} owner={owner} repo={repo} path={path.join("/")}>
         {item?.tree && <TreeView tree={item.tree} />}
-        {item?.blob && <BlobView branch={branch} metadata={item.blob} />}
+        {item?.blob && (
+          <BlobView
+            fullPath={path.join("/")}
+            branch={branch}
+            metadata={item.blob}
+          />
+        )}
       </Page>
     </GithubApiContext.Provider>
   );
