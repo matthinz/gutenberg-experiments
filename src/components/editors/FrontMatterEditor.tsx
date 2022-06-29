@@ -1,57 +1,77 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import matter from "gray-matter";
-import { useEffect } from "react";
-import { useCallback } from "react";
-
-type EditorProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
+import { Editor, EditorProps, EditorValue } from "./types";
 
 type FrontMatterEditorProps = EditorProps & {
-  editor: React.ComponentType<EditorProps>;
+  editor: Editor;
 };
 
 type FrontMatter = { [key: string]: any };
 
-export function FrontMatterEditor({
+const FRONT_MATTER_KEYS = ["title"];
+
+/**
+ * @param {Editor} editor
+ * @returns {Editor}
+ */
+export function createFrontMatterEditor(editor: Editor): Editor {
+  return {
+    ...editor,
+    component: function (props: EditorProps) {
+      return <FrontMatterEditorComponent {...props} editor={editor} />;
+    },
+  };
+}
+
+export function FrontMatterEditorComponent({
   value,
   onChange,
-  editor: Editor,
+  editor,
+  ...rest
 }: FrontMatterEditorProps) {
   const [frontMatter, setFrontMatter] = React.useState<FrontMatter>({});
-  const [content, setContent] = React.useState<string | undefined>();
+  const [content, setContent] = React.useState<EditorValue | undefined>();
 
   useEffect(() => {
     if (content == null) {
-      const { data, content: parsedContent } = matter(value);
+      const { data, content: parsedContent } = matter(value.raw);
       setFrontMatter(data);
-      setContent(parsedContent);
+      setContent({
+        raw: parsedContent,
+      });
     }
   }, [value]);
 
-  const handleChange = useCallback(
-    (
-      newContent: string | undefined,
-      newFrontMatter: FrontMatter | undefined
-    ) => {
-      newContent != null && setContent(newContent);
-      newFrontMatter != null && setFrontMatter(newFrontMatter);
-      onChange(
-        matter.stringify(
-          newContent ?? value,
-          (newFrontMatter ?? frontMatter) as Object
-        )
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const raw = matter.stringify(
+        {
+          content: content?.raw ?? "",
+        },
+        frontMatter
       );
-    },
-    [onChange, frontMatter]
-  );
+      onChange({ raw });
+    }, 100);
 
-  const KEYS = ["title"];
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [frontMatter, content]);
+
+  const handleFrontMatterChange = useCallback((newFrontMatter: FrontMatter) => {
+    setFrontMatter(newFrontMatter);
+  }, []);
+
+  const handleContentChange = useCallback((newContent: EditorValue) => {
+    setContent(newContent);
+  }, []);
+
+  const InternalEditor = editor.component;
+
   return (
     <>
       {frontMatter != null &&
-        KEYS.map((key) => (
+        FRONT_MATTER_KEYS.map((key) => (
           <div className="display-flex padding-4" key={key}>
             <label className="flex-1">{key}:</label>
             <input
@@ -59,7 +79,7 @@ export function FrontMatterEditor({
               type="text"
               value={frontMatter[key] ?? ""}
               onChange={(e) => {
-                handleChange(undefined, {
+                handleFrontMatterChange({
                   ...frontMatter,
                   [key]: e.target.value,
                 });
@@ -67,7 +87,13 @@ export function FrontMatterEditor({
             />
           </div>
         ))}
-      {content != null && <Editor value={content} onChange={handleChange} />}
+      {content != null && (
+        <InternalEditor
+          value={content}
+          onChange={handleContentChange}
+          {...rest}
+        />
+      )}
     </>
   );
 }

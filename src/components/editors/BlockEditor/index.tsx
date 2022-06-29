@@ -38,31 +38,51 @@ import "@wordpress/block-library/build-style/editor.css";
 import "@wordpress/block-library/build-style/theme.css";
 
 import "./block-editor.scss";
+import { Editor, EditorProps } from "..";
 
-type BlockEditorProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
-
-export function BlockEditor({ value, onChange }: BlockEditorProps) {
-  const [blocks, setBlocks] = useState<any[] | undefined>(undefined);
-
-  const handleChange = useCallback((newBlocks) => {}, []);
+export function BlockEditorComponent({ value, onChange }: EditorProps) {
+  const [blocks, setBlocks] = useState<any[] | undefined>();
 
   useEffect(() => {
-    let parsedBlocks = parse(value);
+    if (value.structured != null) {
+      setBlocks(value.structured);
+      return;
+    }
+
+    if (blocks != null) {
+      return;
+    }
+
+    let parsedBlocks = parse(value.raw);
 
     // If we don't have any blocks, put the HTML content into a single custom HTML block
-    if (parsedBlocks.length === 0 && value !== "") {
+    if (parsedBlocks.length === 0 && value.raw !== "") {
       parsedBlocks = [createBlock("core/html", { content: value })];
     }
 
     setBlocks(parsedBlocks);
-  }, [value]);
+  }, [value.raw]);
 
-  if (!blocks) {
-    return null;
-  }
+  // Debounce onChange calls
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const raw = blocks == null ? "" : serialize(blocks);
+
+      onChange({
+        raw,
+        structured: blocks,
+      });
+    }, 100);
+
+    return () => {
+      console.log("clearTimeout");
+      clearTimeout(timeout);
+    };
+  }, [blocks]);
+
+  const handleChange = useCallback((newBlocks) => {
+    setBlocks(newBlocks);
+  }, []);
 
   return (
     <BlockEditorProvider
@@ -92,3 +112,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     </BlockEditorProvider>
   );
 }
+
+export const BlockEditor: Editor = {
+  component: BlockEditorComponent,
+};

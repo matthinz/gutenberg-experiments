@@ -67,7 +67,7 @@ export function FilesRoute({ branch, owner, repo, ...rest }: FilesRouteProps) {
     return () => {
       canceled = true;
     };
-  }, [client, branch, path.join("/"), location.pathname]);
+  }, [client, location.pathname]);
 
   return (
     <GithubApiContext.Provider value={client}>
@@ -78,6 +78,8 @@ export function FilesRoute({ branch, owner, repo, ...rest }: FilesRouteProps) {
             fullPath={path.join("/")}
             branch={branch}
             metadata={item.blob}
+            owner={owner}
+            repo={repo}
           />
         )}
       </Page>
@@ -96,9 +98,13 @@ async function getBlobOrTree(
     branch,
   });
 
+  console.log("sha for %s is %s", branch, branchSha);
+
   let tree = await client.getTree({
     sha: branchSha,
   });
+
+  console.log("tree for %s is %o", branch, tree);
 
   for (let i = 0; i < path.length; i++) {
     const item = tree.items.find((item) => {
@@ -106,10 +112,13 @@ async function getBlobOrTree(
     });
     if (!item) {
       const fullPath = path.slice(0, i + 1).join("/");
+      console.log(tree);
+      console.log(path[i]);
       throw new Error(`item not found in tree: ${fullPath}`);
     }
     if (item.type === "tree") {
       tree = await client.getTree({ sha: item.sha });
+      console.log("tree for %s is %o", path[i], tree);
     } else {
       if (i < path.length - 1) {
         throw new Error(`item is not a tree: ${item.path}`);

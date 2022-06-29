@@ -125,12 +125,27 @@ export function createClient({
   async function getShaForBranch({
     branch,
   }: GetShaForBranchOptions): Promise<string> {
-    const ref = await o.git.getRef({
-      owner,
-      repo,
-      ref: `heads/${branch}`,
-    });
-    return ref.data.object.sha;
+    const shasSeen: { [key: string]: number } = {};
+
+    // XXX: Make github tell us twice before we believe it.
+    //      (eventual consistency after updating heads)
+
+    while (true) {
+      const ref = await o.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${branch}`,
+      });
+
+      const { sha } = ref.data.object;
+      shasSeen[sha] = (shasSeen[sha] ?? 0) + 1;
+
+      if (shasSeen[sha] > 1) {
+        return sha;
+      }
+
+      await sleep(1000);
+    }
   }
 
   async function updateBranch({
@@ -154,4 +169,8 @@ export function createClient({
     getTree,
     updateBranch,
   };
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

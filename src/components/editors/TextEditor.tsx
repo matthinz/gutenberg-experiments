@@ -1,22 +1,31 @@
 import React, { useCallback } from "react";
+import { Editor, EditorProps } from "./types";
 
-type TextEditorProps = {
-  value: string;
-  onChange: (value: string) => void;
+type TextEditorProps = EditorProps & {
+  className?: string;
 };
 
-export function TextEditor({ value, onChange }: TextEditorProps) {
+export function TextEditorComponent({
+  className,
+  value,
+  onChange,
+}: TextEditorProps) {
   const handleChange = useCallback(
     (evt) => {
       onChange(evt.target.value);
     },
     [onChange]
   );
+
+  const classes = ["width-full", "height-card", className]
+    .filter((x) => x)
+    .join(" ");
+
   return (
-    <textarea
-      className="width-full height-card"
-      value={value}
-      onChange={handleChange}
-    />
+    <textarea className={classes} value={value.raw} onChange={handleChange} />
   );
 }
+
+export const TextEditor: Editor = {
+  component: TextEditorComponent,
+};

@@ -16,7 +16,7 @@ export async function commitChanges({
   path,
   content,
   client,
-}: CommitChangesOptions): Promise<void> {
+}: CommitChangesOptions): Promise<string> {
   // 1. Get the commit that the branch currently points to
   const parentCommit = await client.getCommitForBranch(branch);
 
@@ -43,4 +43,6 @@ export async function commitChanges({
     branch,
     sha: commit,
   });
+
+  return commit;
 }

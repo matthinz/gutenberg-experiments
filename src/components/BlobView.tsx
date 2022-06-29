@@ -1,22 +1,36 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { BlobMetadata, Client } from "../github";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { BlobMetadata } from "../github";
 import { GithubApiContext } from "./GithubApi";
-import { BlockEditor } from "./editors/BlockEditor";
-import { TextEditor } from "./editors/TextEditor";
-import { FrontMatterEditor } from "./editors/FrontMatterEditor";
 import { decode as decodeBase64 } from "js-base64";
+
 import { commitChanges } from "../git";
+import {
+  createEditorBasedOnPath,
+  createFrontMatterEditor,
+  EditorValue,
+} from "./editors";
+import { navigate } from "@reach/router";
 
 export type BlobViewProps = {
   branch: string;
   fullPath: string;
   metadata: BlobMetadata;
+  owner: string;
+  repo: string;
 };
 
 export function BlobView({
   branch,
   fullPath,
   metadata: { path, sha },
+  owner,
+  repo,
 }: BlobViewProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [content, setContent] = useState<string | undefined>();
@@ -46,6 +60,37 @@ export function BlobView({
     };
   });
 
+  const editor = useMemo(() => {
+    return createFrontMatterEditor(createEditorBasedOnPath(path));
+  }, [path]);
+
+  const handleConvertToHtml = useCallback(() => {
+    setSubmitting(true);
+    (async () => {
+      const { convertToHtml } = editor;
+
+      if (!convertToHtml || content == null) {
+        return;
+      }
+
+      // rename the using ".html" as the extension and commit the updated contents
+      const newPath = `${fullPath.replace(/\.[^.]+$/, "")}.html`;
+
+      const htmlContent = convertToHtml(content);
+
+      const commit = await commitChanges({
+        branch,
+        path: newPath,
+        content: htmlContent,
+        client,
+      });
+
+      console.log("Committed %s to %s", commit, branch);
+
+      navigate(`/${owner}/${repo}/${branch}/${newPath}`);
+    })().finally(() => setSubmitting(false));
+  }, [editor, content]);
+
   const handleSubmit = useCallback(
     (evt) => {
       evt.preventDefault();
@@ -65,21 +110,12 @@ export function BlobView({
     [branch, path, content, client]
   );
 
-  const handleChange = useCallback((newValue) => {
+  const handleChange = useCallback((newValue: EditorValue) => {
     console.log(newValue);
-    setContent(newValue);
+    setContent(newValue.raw);
   }, []);
 
-  let editor: React.ComponentType<{
-    value: string;
-    onChange: (value: string) => void;
-  }>;
-
-  if (/\.html$/.test(path)) {
-    editor = BlockEditor;
-  } else {
-    editor = TextEditor;
-  }
+  const FrontMatterEditorComponent = editor.component;
 
   return (
     <div className="grid-container">
@@ -87,16 +123,33 @@ export function BlobView({
       {content == null && "Loading..."}
       {content != null && (
         <form onSubmit={handleSubmit}>
-          <FrontMatterEditor
-            value={content}
+          <FrontMatterEditorComponent
+            value={{ raw: content }}
             onChange={handleChange}
-            editor={editor}
           />
-          <div className="padding-2 margin-y-1 display-flex flex-row flex-align-end">
-            <button type="submit" className="usa-button" disabled={submitting}>
-              Save
-            </button>
-          </div>
+          <ul className="usa-button-group">
+            <li className="usa-button-group__item">
+              <button
+                type="submit"
+                className="usa-button"
+                disabled={submitting}
+              >
+                Save
+              </button>
+            </li>
+            {editor.convertToHtml && (
+              <li className="usa-button-group__item">
+                <button
+                  type="button"
+                  className="usa-button usa-button--outline"
+                  disabled={submitting}
+                  onClick={handleConvertToHtml}
+                >
+                  Convert to HTML
+                </button>
+              </li>
+            )}
+          </ul>
         </form>
       )}
     </div>
