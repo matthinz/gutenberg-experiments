@@ -5,8 +5,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { BlobMetadata } from "../github";
-import { GithubApiContext } from "./GithubApi";
 import { decode as decodeBase64 } from "js-base64";
 
 import { commitChanges } from "../git";

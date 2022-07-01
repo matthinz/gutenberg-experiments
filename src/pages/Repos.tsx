@@ -1,45 +1,39 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useMatch } from "@reach/router";
+import { Link } from "react-router-dom";
 
 import { ClientContext } from "../contexts";
+import { Repository } from "../types";
 
-type ReposRouteProps = {
-  owner: string;
-};
+type ReposProps = {};
 
-export function ReposRoute({ owner }: ReposRouteProps) {
-  const [repos, setRepos] = useState<string[] | undefined>();
+export function Repos({}: ReposProps) {
+  const [repos, setRepos] = useState<Repository[] | undefined>();
   const client = useContext(ClientContext);
-
-  const match = useMatch(`/${owner}`);
 
   useEffect(() => {
     let cancel = false;
 
     (async () => {
-      const newRepos = await client.getRepos();
-
-      if (cancel) {
-        return;
-      }
-
-      setRepos(newRepos);
+      if (cancel) return;
+      const nextRepos = await client.getRepositories();
+      if (cancel) return;
+      setRepos(nextRepos);
     })();
 
     return () => {
       cancel = true;
     };
-  }, [owner, client]);
+  }, [client]);
 
   return (
     <div className="grid-container">
-      <h1>Select a repo</h1>
+      <h1>Select a repo!</h1>
       <p>Pick one of your repos to work with.</p>
       {repos && (
         <ul>
           {repos.map((repo) => (
-            <li key={repo}>
-              <Link to={repo}>{repo}</Link>
+            <li key={repo.id}>
+              <Link to={repo.id}>{repo.name}</Link>
             </li>
           ))}
         </ul>

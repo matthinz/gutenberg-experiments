@@ -1,29 +1,35 @@
 export type ChangeSet = {
-  id: string;
-  save: File[];
-  delete: FileMetadata[];
+  readonly id: string;
+  readonly toInsert: File[];
+  readonly toUpdate: File[];
+  readonly toDelete: FileReference[];
 };
 
 export type Client = {
-  createClientForRepository(repo: Repository): RepositoryClient;
+  createClientForRepository(repo: Repository | string): RepositoryClient;
   getRepositories(): Promise<Repository[]>;
 };
 
 export type Directory = {
+  readonly type: "directory";
   readonly name: string;
-  readonly parent?: Directory;
-  readonly children: (Directory | FileMetadata)[];
+  readonly path: string;
+  readonly items: () => Promise<(Directory | File)[]>;
 };
 
-export type FileMetadata = {
-  name: string;
-  parent: Directory;
+export type File = {
+  readonly type: "file";
+  readonly name: string;
+  readonly path: string;
+  readonly content: () => Promise<FileContent>;
 };
 
-export type File = FileMetadata & {
-  content: string;
-  encoding: "utf8" | "base64";
+export type FileContent = {
+  readonly encoding: "utf-8" | "base64";
+  readonly content: string;
 };
+
+export type FileReference = File | string;
 
 export type Repository = {
   id: string;
@@ -32,11 +38,11 @@ export type Repository = {
 
 export type RepositoryClient = {
   applyChanges(changeset: ChangeSet): Promise<void>;
-  getDirectory(path: string): Promise<Directory>;
-  getRootDirectory(): Promise<Directory>;
+  getChanges(id: string): Promise<ChangeSet | undefined>;
+  getItem(path: string): Promise<Directory | File | undefined>;
   prepareChanges(
     name: string,
     saveFiles: File[],
-    deleteFiles: FileMetadata[]
+    deleteFiles: File[]
   ): Promise<ChangeSet>;
 };

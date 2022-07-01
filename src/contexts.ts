@@ -1,10 +1,10 @@
 import React from "react";
-import { Client, RepoClient } from "./github";
+import { Client, RepositoryClient } from "./types";
 
 export const ClientContext = React.createContext<Client>(
   undefined as any as Client
 );
 
-export const RepoClientContext = React.createContext<RepoClient>(
-  undefined as any as RepoClient
+export const RepositoryClientContext = React.createContext<RepositoryClient>(
+  undefined as any as RepositoryClient
 );

@@ -1,14 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { Icon } from "./Icon";
-import { Client, createClient } from "../github";
+import { GitHubClient } from "../github";
+import { Client } from "../types";
 
 type AccessTokenInputProps = {
-  onValidTokenEntered: (
-    accessToken: string,
-    userName: string,
-    client: Client
-  ) => void;
+  onValidTokenEntered: (accessToken: string, client: Client) => void;
   value: string;
 };
 
@@ -46,24 +42,21 @@ export function AccessTokenInput(props: AccessTokenInputProps) {
     const timeout = setTimeout(() => {
       setState("checking");
 
-      const client = createClient(value);
+      const client = new GitHubClient(value);
 
       (async () => {
         if (cancel) {
           return;
         }
         try {
-          const [_, userName] = await Promise.all([
-            client.getRepos(),
-            client.getUserName(),
-          ]);
+          const repos = await client.getRepositories();
 
           if (cancel) {
             return;
           }
 
           setState("valid");
-          props.onValidTokenEntered(value, userName, client);
+          props.onValidTokenEntered(value, client);
         } catch (err: unknown) {
           console.error(err);
           setState("invalid");
