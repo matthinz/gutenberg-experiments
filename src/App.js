@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Router, Link, RouteComponentProps } from "@reach/router";
+import React, { useState } from "react";
+import { Router } from "@reach/router";
 
 import "./style.scss";
 
-import { GithubApi } from "./components/GithubApi";
-
+import { AuthenticationRoute } from "./routes/authentication";
 import { FilesRoute } from "./routes/files";
+import { ReposRoute } from "./routes/repos";
 
 export function App() {
   return (
-    <GithubApi>
-      <Router>
-        <FilesRoute path="/:owner/:repo/:branch/*" />
-      </Router>
-    </GithubApi>
+    <Router>
+      <AuthenticationRoute path="/">
+        <ReposRoute path="/:owner" />
+        <FilesRoute path="/:owner/:repo/*" />
+      </AuthenticationRoute>
+    </Router>
   );
 }

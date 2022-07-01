@@ -14,31 +14,18 @@ import {
 } from "../github";
 import { BlobView } from "../components/BlobView";
 
+import { RepoClientContext } from "../contexts";
+
 interface FilesRouteProps extends RouteComponentProps {
   owner: string;
-  branch: string;
   repo: string;
   "*"?: string;
 }
 
 export function FilesRoute({ branch, owner, repo, ...rest }: FilesRouteProps) {
-  const accessToken = window.localStorage.getItem("githubAccessToken");
-
-  if (accessToken == null) {
-    return <div>No access token found</div>;
-  }
+  const client = useContext(RepoClientContext);
 
   const path: string[] = (rest["*"] ?? "").split("/").filter((x) => x !== "");
-
-  const client = useMemo(
-    () =>
-      createClient({
-        accessToken,
-        owner,
-        repo,
-      }),
-    [accessToken, owner, repo]
-  );
 
   const [item, setItem] = useState<
     | { tree: Tree; blob?: undefined }

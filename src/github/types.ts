@@ -22,9 +22,16 @@ export type CreateClientOptions = {
 };
 
 export type Client = {
+  createClientForRepo(repo: string): RepoClient;
+  getRepos(): Promise<string[]>;
+  getUserName(): Promise<string>;
+};
+
+export type RepoClient = {
   createCommit(options: CreateCommitOptions): Promise<string>;
   createTree(options: CreateTreeOptions): Promise<string>;
   getBlob(options: GetBlobOptions): Promise<Blob>;
+  getBranches(): Promise<string[]>;
   getCommitForBranch(branch: string): Promise<Commit>;
   getShaForBranch(options: GetShaForBranchOptions): Promise<string>;
   getTree(options: GetTreeOptions): Promise<Tree>;

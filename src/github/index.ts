@@ -4,12 +4,12 @@ import {
   Blob,
   Client,
   Commit,
-  CreateClientOptions,
   CreateCommitOptions,
   CreateTreeOptions,
   GetBlobOptions,
   GetShaForBranchOptions,
   GetTreeOptions,
+  RepoClient,
   Tree,
   TreeItem,
   UpdateBranchOptions,
@@ -17,15 +17,33 @@ import {
 
 export * from "./types";
 
-export function createClient({
-  accessToken,
-  owner,
-  repo,
-}: CreateClientOptions): Client {
+export function createClient(accessToken: string): Client {
   const o = new Octokit({
     auth: accessToken,
   });
 
+  function createClientForRepo(repo: string): RepoClient {
+    return createRepoClient(o, repo);
+  }
+
+  function getRepos(): Promise<string[]> {
+    return o.repos
+      .listForAuthenticatedUser({
+        type: "owner",
+      })
+      .then((resp) => {
+        return resp.data.map((repo) => repo.name);
+      });
+  }
+
+  function getUserName(): Promise<string> {
+    return o.users.getAuthenticated().then((resp) => resp.data.login);
+  }
+
+  return { createClientForRepo, getRepos, getUserName };
+}
+
+function createRepoClient(o: Octokit, repo: string): RepoClient {
   async function createCommit({
     message,
     parent,

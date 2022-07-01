@@ -23,4 +23,3 @@ This is an example of an **Autocompleter**. Wordpress also uses these for things
 
 When you hit Enter inside a `RichText` component from `@wordpress/block-editor`, it calls the function  `onSplit` prop. It actually calls the function twice, once for the text _before_ the cursor and once for the text _after_. Each call to `onSplit` can return a new block to replace the original (via function specified in the `onReplace` prop). So basically, `core/heading` handles Enter keypresses.
 
-Test

@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useState, useEffect } from "react";
 
-import { createClient, Client } from "../github";
+import { createClient, UnauthedClient } from "../github";
 import { withCaching } from "../github/cache";
 
 export const GithubApiContext = React.createContext<Client>(
